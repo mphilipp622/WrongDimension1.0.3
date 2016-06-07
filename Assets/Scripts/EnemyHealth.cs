@@ -58,7 +58,7 @@ public class EnemyHealth : MonoBehaviour {
             Vector3 posX = transform.position;
             Instantiate(bloodSplatter, posX, transform.rotation);
             Instantiate(bloodSplatter, posX, transform.rotation);
-            timerHolder.GetComponent<timer2>().filAmount += 0.4f;
+            timerHolder.SendMessage("SSKilled");
             Destroy(gameObject);
         }
 

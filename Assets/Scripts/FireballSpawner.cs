@@ -4,7 +4,8 @@ using System.Collections;
 public class FireballSpawner : MonoBehaviour {
 
     public GameObject fireBall;
-    public float spawnTime;
+    public float spawnTimeLow;
+    public float spawnTimeHigh;
     public AudioClip fireballHiss;
     AudioSource FBSource;
     public int flyupSpeedLow1;
@@ -24,7 +25,7 @@ public class FireballSpawner : MonoBehaviour {
 
     IEnumerator Timer()
     {
-        yield return new WaitForSeconds(spawnTime);
+        yield return new WaitForSeconds(Random.RandomRange(spawnTimeLow, spawnTimeHigh));
         
         FBSource.clip = fireballHiss;
         FBSource.Play();

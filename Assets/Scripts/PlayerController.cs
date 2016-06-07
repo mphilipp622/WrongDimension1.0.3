@@ -34,6 +34,7 @@ public class PlayerController : MonoBehaviour {
     public AudioClip walkingSound;
     public AudioClip stabbingSound;
     public AudioSource hitTakenSource;
+    public AudioClip fallingClip;
     
     public AudioClip arrowHitSound;
     public AudioClip jumpSound;
@@ -62,7 +63,8 @@ public class PlayerController : MonoBehaviour {
 
     private int laserShots = 4;
     private int lasersShot;
-    public Image playerLaserImage;
+    public GameObject laserCounter;
+     SpriteRenderer playerLaserImage;
     public Sprite laser4;
     public Sprite laser3;
     public Sprite laser2;
@@ -73,9 +75,18 @@ public class PlayerController : MonoBehaviour {
 
     public GameObject lavaExplosion;
     public bool inLava;
+    public bool flatLevel;
+    public bool canHighlight = false;
+
+    GameObject[] highlighter;
+
+    public bool lastLevel;
+    
 
     // Use this for initialization
     void Start () {
+
+        playerLaserImage = laserCounter.GetComponent<SpriteRenderer>();
         
         rigidBody = GetComponent<Rigidbody>();
         anim = GetComponent<Animator>();
@@ -89,27 +100,54 @@ public class PlayerController : MonoBehaviour {
         playerSpriteRen.sprite = upSprite;
 
         mainCamera = GameObject.FindWithTag("MainCamera");
-        
+        highlighter = GameObject.FindGameObjectsWithTag ("Highlighter");
+
     }
 	
 	// Update is called once per frame
 	void Update () {
 
-       
+        if (canJump )
+        {
+            foreach (GameObject highlighters in highlighter)
+            {
+                highlighters.GetComponent<Collider>().enabled = false;
+            }
+        }
 
-        if(facingDown)
+        if (!canJump && canHighlight)
+        {
+            foreach (GameObject highlighters in highlighter)
+            {
+                highlighters.GetComponent<Collider>().enabled = true;
+            }
+        }
+
+        if (facingDown)
+        {
             playerSpriteRen.sprite = downSprite;
-        
-        if(!facingDown)
-            playerSpriteRen.sprite = upSprite;
+            laserCounter.transform.rotation = Quaternion.Euler(0, 0, 180);
+        }
 
-        if (transform.position.z >= 600)
+        if (!facingDown)
+        {
+            playerSpriteRen.sprite = upSprite;
+            laserCounter.transform.rotation = Quaternion.Euler(0, 0, 0);
+
+        }
+
+        if (transform.position.z >= 1500 )
         {
             StartCoroutine(Timer());
            }
 
-       
-       
+        if (transform.position.z >= 50 && flatLevel)
+        {
+            StartCoroutine(Timer());
+        }
+
+
+
 
 
 
@@ -302,12 +340,24 @@ public class PlayerController : MonoBehaviour {
             posX.y += Random.RandomRange(-2, 2);
             Instantiate(lavaExplosion, posX, transform.rotation);
         }
-    }
+
+        if (rigidBody.velocity.z < 15)
+        {
+            hitTakenSource.clip = fallingClip;
+            hitTakenSource.Play();
+        }
+
+        }
 
     void OnTriggerEnter(Collider col)
     {
-       
-        if (col.gameObject.tag == "Pitfall")
+        if (col.gameObject.tag == "HF")
+        {
+            canHighlight = true;
+        }
+
+
+            if (col.gameObject.tag == "Pitfall")
         {
             walkingSource.Stop();
             anim.SetBool("Striking", false);
@@ -330,7 +380,7 @@ public class PlayerController : MonoBehaviour {
             setHealth(calcHealth);
             Vector3 posX = transform.position;
             Instantiate(bloodSplatter, posX, transform.rotation);
-            healthEffectHolder.GetComponent<VideoGlitchOldVHS>().amount += 0.20f;
+            healthEffectHolder.GetComponent<VideoGlitchOldVHS>().amount += 0.10f;
 
         }
 
@@ -372,7 +422,16 @@ public class PlayerController : MonoBehaviour {
 
         }
 
-    void OnCollisionStay(Collision col3)
+    void OnTriggerExit(Collider col)
+    {
+        if (col.gameObject.tag == "HF")
+        {
+            canHighlight = false;
+        }
+
+    }
+
+        void OnCollisionStay(Collision col3)
     {
         canJump = true;
     }
@@ -380,6 +439,18 @@ public class PlayerController : MonoBehaviour {
 
         void OnCollisionEnter(Collision col1)
     {
+
+        if (col1.gameObject.tag == "EnemyWeapon")
+        {
+
+            curHealth += 10;
+            float calcHealth = curHealth / maxhealth;
+            setHealth(calcHealth);
+            Vector3 posX = transform.position;
+            Instantiate(bloodSplatter, posX, transform.rotation);
+            healthEffectHolder.GetComponent<VideoGlitchOldVHS>().amount += 0.10f;
+
+        }
 
         if (col1.gameObject.tag == "Lava")
         {
@@ -442,9 +513,19 @@ public class PlayerController : MonoBehaviour {
         weaponSource.Play();
 
         
-        yield return new WaitForSeconds(1);
-        Application.LoadLevel(Application.loadedLevel);
-        Application.LoadLevel(Application.loadedLevel + 1);
+        yield return new WaitForSeconds(0.75f);
+        if (!lastLevel)
+        {
+            Application.LoadLevel(Application.loadedLevel);
+            Application.LoadLevel(Application.loadedLevel + 1);
+
+        }
+
+        if (lastLevel)
+        {
+            Application.LoadLevel(1);
+
+        }
     }
 
     IEnumerator Timer3()

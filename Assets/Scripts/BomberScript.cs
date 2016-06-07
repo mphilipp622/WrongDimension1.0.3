@@ -104,7 +104,7 @@ public class BomberScript : MonoBehaviour {
             Vector3 posX = transform.position;
             Instantiate(bloodSplatter, posX, transform.rotation);
             Instantiate(bloodSplatter, posX, transform.rotation);
-            timerHolder.GetComponent<timer2>().filAmount += 0.8f;
+            timerHolder.SendMessage("BomberKilled");
             Destroy(gameObject);
         }
     }

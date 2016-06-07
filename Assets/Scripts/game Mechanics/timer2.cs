@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class timer2 : MonoBehaviour {
 
-    public Image timerBar;
+   
     public int timeGiven;
     public float timeDiv;
     public float curTime;
@@ -13,43 +13,54 @@ public class timer2 : MonoBehaviour {
     public float filAmount;
     private float startFill;
     AudioSource timerBeeper;
+    GameObject mainCamera;
 
 	// Use this for initialization
 	void Start () {
-        timeDiv = timeGiven / 20f;
+        curTime = timeGiven;
+        timeDiv = timeGiven / 10f;
         timeUp = 0;
-        filAmount = timerBar.fillAmount;
         timerBeeper = gameObject.GetComponent<AudioSource>();
-        startFill = filAmount;
+       
        
     }
 
     void Awake()
     {
-        timerBar = GameObject.FindWithTag("Timer").GetComponent<Image>();
-        Debug.Log(GameObject.FindWithTag("Timer").name);
+      
+        mainCamera = GameObject.FindWithTag("MainCamera");
 
     }
 	
 	// Update is called once per frame
 	void Update () {
-        timerBar.fillAmount = filAmount;
+        
 
-        if(filAmount <= startFill/ 8)
+        if(curTime <= timeGiven/ 5)
         {
             if (!timerBeeper.isPlaying)
             timerBeeper.Play();
         }
 
+        if (curTime >= timeGiven / 5)
+        {
+            if (timerBeeper.isPlaying)
+                timerBeeper.Stop();
+        }
+
+        curTime -= Time.deltaTime % 60;
         timeUp += Time.deltaTime;
         if(timeUp >= timeDiv)
         {
-             filAmount -= 0.10f;
+             
+            mainCamera.GetComponent<FxPro>().FarTintStrength += 0.10f;
+            mainCamera.GetComponent<FxPro>().Init();
+           
             timeUp = 0;
            
         }
 
-       if (timerBar.fillAmount <= 0)
+       if (curTime <= 0)
         {
             Application.LoadLevel(Application.loadedLevel);
 
@@ -57,4 +68,32 @@ public class timer2 : MonoBehaviour {
 
 	
 	}
+
+    public void ArcherKilled()
+    {
+        curTime += timeGiven / 6;
+        mainCamera.GetComponent<FxPro>().FarTintStrength -= 0.10f;
+        mainCamera.GetComponent<FxPro>().Init();
+    }
+
+    public void BullKilled()
+    {
+        curTime += timeGiven / 2;
+        mainCamera.GetComponent<FxPro>().FarTintStrength -= 0.025f;
+        mainCamera.GetComponent<FxPro>().Init();
+    }
+
+    public void BomberKilled()
+    {
+        curTime += timeGiven / 6;
+        mainCamera.GetComponent<FxPro>().FarTintStrength -= 0.10f;
+        mainCamera.GetComponent<FxPro>().Init();
+    }
+
+    public void SSKilled()
+    {
+        curTime += timeGiven / 8;
+        mainCamera.GetComponent<FxPro>().FarTintStrength -= 0.05f;
+        mainCamera.GetComponent<FxPro>().Init();
+    }
 }

@@ -120,7 +120,7 @@ public class BullScript : MonoBehaviour
             Vector3 posX = transform.position;
 			Instantiate(bloodSplatter, posX, transform.rotation);
 			Instantiate(bloodSplatter, posX, transform.rotation);
-            timerHolder.GetComponent<timer2>().filAmount += 0.8f;
+            timerHolder.SendMessage("BullKilled");
             Destroy(gameObject);
         }
 			

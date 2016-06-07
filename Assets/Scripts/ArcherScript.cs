@@ -68,7 +68,7 @@ public class ArcherScript : MonoBehaviour
                 if (Physics.Raycast(lookingRay, out hit, lookLength))
                 {
                     Debug.Log("The RaycastHitSomethingr");
-                    if (hit.collider.tag == "PDA" && !shooting)
+                    if (hit.collider.tag == "PDA")
                     {
                         Debug.Log("The RaycastHitplayer");
                         arrowsShot = 0;
@@ -102,7 +102,7 @@ public class ArcherScript : MonoBehaviour
         if (curHealth <= 0)
         {
             Vector3 posX = transform.position;
-            timerHolder.GetComponent<timer2>().filAmount += 0.4f;
+            timerHolder.SendMessage("ArcherKilled");
             Destroy(gameObject);
             Instantiate(bloodSplatter, posX, transform.rotation);
             Instantiate(bloodSplatter, posX, transform.rotation);
@@ -147,8 +147,8 @@ public class ArcherScript : MonoBehaviour
 
     IEnumerator Timer()
     {
-        yield return new WaitForSeconds(0.25f);
-        shooting = false;
+        //yield return new WaitForSeconds(0.25f);
+        // shooting = false;
         yield return new WaitForSeconds(Random.Range(3f, 6f));
         if (canSwitch)
         {
@@ -165,41 +165,30 @@ public class ArcherScript : MonoBehaviour
 
     IEnumerator Timer2()
     {
-       
-                shooting = true;
-             
-             if (arrowsShot >= arrowsToShoot)
-             {
-                 
-                 canSwitch = true;
-             StartCoroutine(Timer());
-                }
 
-            if (arrowsShot <= arrowsToShoot)
-            {
-                canSwitch = false;
-                archerAudio.PlayOneShot(shootSound, 1);
-                yield return new WaitForSeconds(0.25f);
-                Vector3 posX = transform.position;
-                posX.y -= 1f;
-                if (walkingUp)
-                {
-                    Instantiate(downArrows, posX, transform.rotation);
-                }
-                if (!walkingUp)
-                {
-                    Instantiate(upArrows, posX, transform.rotation);
-                }
-                arrowsShot += 1;
-                yield return new WaitForSeconds(1);
+        shooting = true;
 
-                StartCoroutine(Timer2());
-            }
-            if (arrowsShot >= arrowsToShoot)
+        while (arrowsShot < arrowsToShoot)
+        {
+            canSwitch = false;
+            archerAudio.PlayOneShot(shootSound, 1);
+            yield return new WaitForSeconds(0.5f);
+            Vector3 posX = transform.position;
+            posX.y -= 1f;
+            if (walkingUp)
             {
-                shooting = false;
-                canSwitch = true;
-                StartCoroutine(Timer());
+                Instantiate(downArrows, posX, transform.rotation);
             }
+            if (!walkingUp)
+            {
+                Instantiate(upArrows, posX, transform.rotation);
+            }
+            arrowsShot += 1;
+            yield return new WaitForSeconds(1);
         }
+
+        shooting = false;
+        canSwitch = true;
+        StartCoroutine(Timer());
+    }
 }
