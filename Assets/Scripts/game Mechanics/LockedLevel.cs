@@ -24,11 +24,22 @@ public class LockedLevel : MonoBehaviour
 
     void Update()
     {
-        if (levelNumber <= PlayerPrefs.GetInt("HighestLevelUnlocked"))
-        {
-            thisImage.color = new Color(thisImage.color.r, thisImage.color.g, thisImage.color.b, 1);
-            canPlay = true;
-        }
+		#if UNITY_WEBGL
+	        if (levelNumber <= PlayerPrefs.GetInt("HighestLevelUnlocked"))
+	        {
+	            thisImage.color = new Color(thisImage.color.r, thisImage.color.g, thisImage.color.b, 1);
+	            canPlay = true;
+	        }
+
+		#else
+			if (levelNumber <= GameManager.GM.levelUnlocked)
+			{
+				thisImage.color = new Color(thisImage.color.r, thisImage.color.g, thisImage.color.b, 1);
+				canPlay = true;
+			}
+
+		#endif
+
     }
 
 

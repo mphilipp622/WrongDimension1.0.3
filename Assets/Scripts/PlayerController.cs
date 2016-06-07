@@ -413,7 +413,17 @@ public class PlayerController : MonoBehaviour {
             walkSpeed = 0;
             anim.SetBool("Walking", false);
             anim.SetBool("Falling", true);
-            PlayerPrefs.SetInt("HighestLevelUnlocked", SceneManager.GetActiveScene().buildIndex + 1);
+
+
+			#if UNITY_WEBGL
+	            PlayerPrefs.SetInt("HighestLevelUnlocked", SceneManager.GetActiveScene().buildIndex + 1);
+
+			#else
+				GameManager.GM.levelUnlocked = SceneManager.GetActiveScene().buildIndex + 1;
+				GameManager.GM.Save();
+
+			#endif
+
             StartCoroutine(Timer2());
 
             
@@ -516,6 +526,7 @@ public class PlayerController : MonoBehaviour {
         yield return new WaitForSeconds(0.75f);
         if (!lastLevel)
         {
+			Debug.Log("Test");
             Application.LoadLevel(Application.loadedLevel);
             Application.LoadLevel(Application.loadedLevel + 1);
 
