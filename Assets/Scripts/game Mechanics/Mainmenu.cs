@@ -32,8 +32,6 @@ public class Mainmenu : MonoBehaviour {
         // MainMenuAnim = mainMenuPanel.GetComponent<Animator>();
         baseScale = transform.localScale;
         MaintargetScale = baseScale;
-
-
         
         foreach (GameObject obj2 in LevelSelects)
         {
@@ -44,35 +42,19 @@ public class Mainmenu : MonoBehaviour {
 
         if (resetLevels)
         {
-			#if UNITY_WEBGL
-	            PlayerPrefs.SetInt("HighestLevelUnlocked", 2);
-	            levelsUnlocked= PlayerPrefs.GetInt("HighestLevelUnlocked");
-
-			#else
-				GameManager.GM.levelUnlocked = 2;
-				levelsUnlocked = GameManager.GM.levelUnlocked;
-				GameManager.GM.Save();
-
-			#endif
-
+            PlayerPrefs.SetInt("HighestLevelUnlocked", 2);
+            levelsUnlocked= PlayerPrefs.GetInt("HighestLevelUnlocked");
             resetLevels = false;
         }
 
-		#if UNITY_WEBGL
-			levelsUnlocked = PlayerPrefs.GetInt("HighestLevelUnlocked");
-
-		#else
-			GameManager.GM.Load(); // Loads our saved level data
-			levelsUnlocked = GameManager.GM.levelUnlocked;
-
-		#endif
-
-    }
+        }
 	
 	// Update is called once per frame
 	void Update () {
 
+        
 
+        levelsUnlocked = PlayerPrefs.GetInt("HighestLevelUnlocked");
 
         foreach (GameObject obj in MainMenuSelect)
             {

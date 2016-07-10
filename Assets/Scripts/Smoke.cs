@@ -27,7 +27,7 @@ public class Smoke : MonoBehaviour {
     IEnumerator Timer()
     {
 
-        yield return new WaitForSeconds(3);
+        yield return new WaitForSeconds(4);
         
     }
     }

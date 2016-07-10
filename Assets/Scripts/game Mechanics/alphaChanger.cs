@@ -31,14 +31,12 @@ public class alphaChanger : MonoBehaviour {
         //    gameObject.GetComponent<Renderer>().material.color = new Color(1, 1, 1, 1);
 
 
-//        if (changeHighlight && !changeAlpha)
-//            gameObject.GetComponent<Renderer>().material.color = new Color(1.3f, 1.3f, 1.3f, 1f);
-//
-//        if (!changeHighlight && !changeAlpha)
-//            gameObject.GetComponent<Renderer>().material.color = new Color(1, 1, 1, 1);
-//
-//        changeHighlight = false;
-//        changeAlpha = false;
+        
+
+       
+
+        //changeHighlight = false;
+        //changeAlpha = false;
     }
 
 
@@ -55,8 +53,12 @@ public class alphaChanger : MonoBehaviour {
 
         if (col.gameObject.name == "Highlighter")
         {
-            gameObject.GetComponent<Renderer>().material.color = new Color(1.3f, 1.3f, 1.3f, 1f);
+            //gameObject.GetComponent<Renderer>().material.color = new Color(1.3f, 1.3f, 1.3f, 1f);
+            changeAlpha = false;
             changeHighlight = true;
+
+            if (!changeAlpha)
+                gameObject.GetComponent<Renderer>().material.color = new Color(1.3f, 1.3f, 1.3f, 1f);
         }
 
     }
@@ -66,7 +68,10 @@ public class alphaChanger : MonoBehaviour {
 
         
             gameObject.GetComponent<Renderer>().material.color = new Color(1, 1, 1, 1);
-        
+
+        if (!changeHighlight && !changeAlpha)
+            gameObject.GetComponent<Renderer>().material.color = new Color(1, 1, 1, 1);
+
 
     }
 }
