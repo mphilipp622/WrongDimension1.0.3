@@ -11,6 +11,12 @@ public class GameManager : MonoBehaviour {
 
 	int _levelUnlocked;
 
+	public KeyCode jump {get;set;}
+	public KeyCode up {get;set;}
+	public KeyCode down {get;set;}
+	public KeyCode shoot {get; set;}
+	public KeyCode stab {get; set;}
+
 	public int levelUnlocked
 	{
 		get
@@ -35,7 +41,17 @@ public class GameManager : MonoBehaviour {
 			Destroy(gameObject);
 		}
 
-
+		jump = (KeyCode) System.Enum.Parse(typeof(KeyCode), PlayerPrefs.GetString("jumpKey", "Space"));
+		up = (KeyCode) System.Enum.Parse(typeof(KeyCode), PlayerPrefs.GetString("upKey", "W"));
+		down = (KeyCode) System.Enum.Parse(typeof(KeyCode), PlayerPrefs.GetString("downKey", "S"));
+		stab = (KeyCode) System.Enum.Parse(typeof(KeyCode), PlayerPrefs.GetString("swordKey", "R"));
+		shoot = (KeyCode) System.Enum.Parse(typeof(KeyCode), PlayerPrefs.GetString("gunKey", "E"));
+//
+//		jump = KeyCode.Space;
+//		up = KeyCode.W;
+//		down = KeyCode.S;
+//		stab = KeyCode.R;
+//		shoot = KeyCode.E;
 	}
 
 	void Start () 

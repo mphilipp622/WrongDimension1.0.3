@@ -174,7 +174,7 @@ public class PlayerController : MonoBehaviour {
         
         if (canControl)
         {
-            if (Input.GetButton("w"))
+			if (Input.GetKey(GameManager.GM.up))
             {
                 v.y = actualWalkSpeed * m_MaxSpeed;
                 rigidBody.velocity = new Vector3(v.x, v.y, v.z);
@@ -187,7 +187,7 @@ public class PlayerController : MonoBehaviour {
                     GetComponent<AudioSource>().Play();
             }
 
-            if (Input.GetButton("s"))
+			if (Input.GetKey(GameManager.GM.down))
             {
                 v.y = -actualWalkSpeed * m_MaxSpeed;
                 rigidBody.velocity = new Vector3(v.x, v.y, v.z);
@@ -197,7 +197,7 @@ public class PlayerController : MonoBehaviour {
                     GetComponent<AudioSource>().Play();
             }
 
-            if (Input.GetButtonUp("w") || Input.GetButtonUp("s"))
+			if (Input.GetKeyUp(GameManager.GM.up) || Input.GetKeyUp(GameManager.GM.down))
             {
 
                 
@@ -237,7 +237,7 @@ public class PlayerController : MonoBehaviour {
                 }
             }
 
-            if (Input.GetButtonDown("e"))
+			if (Input.GetKeyDown(GameManager.GM.shoot))
             {
                 Vector3 posX = transform.position;
 
@@ -289,7 +289,7 @@ public class PlayerController : MonoBehaviour {
             }
 
 
-            if (Input.GetButtonDown("r"))
+			if (Input.GetKeyDown(GameManager.GM.stab))
             {
                 if(!facingDown)
                 anim.SetBool("Striking", true);
@@ -300,14 +300,14 @@ public class PlayerController : MonoBehaviour {
                 sword.tag = "Weapon";
             }
 
-            if (Input.GetButtonUp("r"))
+			if (Input.GetKeyUp(GameManager.GM.stab))
             {
                 sword.tag = "Untagged";
                 anim.SetBool("Striking", false);
                 anim.SetBool("StrikingDown", false);
             }
 
-            if (Input.GetButtonDown("Jump"))
+			if (Input.GetKeyDown(GameManager.GM.jump))
             {
                 if(canJump)
                 rigidBody.velocity = new Vector3(v.x, v.y, -jumpForce);
@@ -316,7 +316,7 @@ public class PlayerController : MonoBehaviour {
                 hitTakenSource.Play();
             }
 
-            if (Input.GetButtonUp("Jump"))
+			if (Input.GetKeyUp(GameManager.GM.jump))
             {
 
             }
