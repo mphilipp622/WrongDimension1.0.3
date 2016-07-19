@@ -6,6 +6,9 @@ public class MusicHanlder : MonoBehaviour {
      public AudioSource audioSource;
     public AudioClip genClip;
     public AudioClip underClip;
+
+    public float musicVol=1;
+    public int musicVolint =1;
     
     private int currentLevel;
 
@@ -15,79 +18,80 @@ public class MusicHanlder : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         DontDestroyOnLoad(transform.gameObject);
+        musicVol = 1;
         audioSource = gameObject.GetComponent<AudioSource>();
         audioSource.clip = genClip;
         audioSource.Play();
 
-        /*audioSource = gameObject.GetComponent<AudioSource>();
-        audioSource.clip = startingClip;
-        audioSource.Play();
-        audioSource.loop = true;
+        //audioSource = gameObject.GetComponent<AudioSource>();
+        //audioSource.clip = startingClip;
+        //audioSource.Play();
+        //audioSource.loop = true;
     }
 	
 	// Update is called once per frame
 	void Update () {
-	
+        musicVol = audioSource.volume;
         
 
 	}
 
-    void OnLevelWasLoaded(int level)
-    {
-        if (level != 1 || level != currentLevel)
-        {
-            audioSource.clip = playingClip;
-            audioSource.Play();
-            audioSource.loop = true;
-        }
-        currentLevel = level;
-    }
+    //void OnLevelWasLoaded(int level)
+    //{
+    //    if (level != 1 || level != currentLevel)
+    //    {
+    //        audioSource.clip = playingClip;
+    //        audioSource.Play();
+    //        audioSource.loop = true;
+    //    }
+    //    currentLevel = level;
+    //}
 
-    public void ChangeSongs()
-    {
-    */
+    //public void ChangeSongs()
+    //{
+    //*/
 
-    }
-
-
-    void OnLevelWasLoaded(int level)
-    {
-        if (level == 6)
-        {
-            FadeToUnder();
-        }
-
-        if (level != 6)
-        {
-            if(audioSource.clip == underClip)
-            {
-                audioSource.clip = genClip;
-                audioSource.Play();
-
-            }
-
-        }
-    }
-
-    void FadeIn()
-    {
+    //}
 
 
-    }
+    //void OnLevelWasLoaded(int level)
+    //{
+    //    if (level == 6)
+    //    {
+    //        FadeToUnder();
+    //    }
 
-    void FadeToUnder()
-    {
-        //if (!audioSource.isPlaying)
-        //{
-            if (audioSource.clip != underClip)
-            {
-                //audioSource.volume = Mathf.Lerp(audioSource.volume, 0, Time.deltaTime);
-                audioSource.clip = underClip;
-                Debug.Log("UNDERGROUND");
-            audioSource.Play();
-            }
+    //    if (level != 6)
+    //    {
+    //        if(audioSource.clip == underClip)
+    //        {
+    //            audioSource.clip = genClip;
+    //            audioSource.Play();
 
-        //}
+    //        }
 
-    }
+    //    }
+    //}
+
+    //void FadeIn()
+    //{
+
+
+    //}
+
+    //void FadeToUnder()
+    //{
+    //    //if (!audioSource.isPlaying)
+    //    //{
+    //        if (audioSource.clip != underClip)
+    //        {
+    //            //audioSource.volume = Mathf.Lerp(audioSource.volume, 0, Time.deltaTime);
+    //            audioSource.clip = underClip;
+    //            Debug.Log("UNDERGROUND");
+    //        audioSource.Play();
+    //        }
+
+    //    //}
+
+    //}
 }

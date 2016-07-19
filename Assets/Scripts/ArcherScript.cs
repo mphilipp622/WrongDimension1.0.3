@@ -52,7 +52,7 @@ public class ArcherScript : MonoBehaviour
                 Debug.DrawRay(transform.position, Vector3.down * lookLength);
                 if (Physics.Raycast(lookingRay, out hit, lookLength))
                 {
-                    Debug.Log("The RaycastHitSomethingr");
+                    //Debug.Log("The RaycastHitSomethingr");
                     if (hit.collider.tag == "PDA")
                     {
                         Debug.Log("The RaycastHitplayer");

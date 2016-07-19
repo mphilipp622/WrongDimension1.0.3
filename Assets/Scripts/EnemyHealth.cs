@@ -7,6 +7,7 @@ public class EnemyHealth : MonoBehaviour {
     public int startingHealth;
     int curHealth;
     public GameObject bloodSplatter;
+    public GameObject explosionPrefab;
     float walkSpeed;
     public int actualWalkSpeed;
     public bool walkingUp;
@@ -15,7 +16,7 @@ public class EnemyHealth : MonoBehaviour {
     public Transform target;
     public GameObject timerHolder;
 
-
+    public bool isExplosion;
 
 
     Rigidbody rigidBody;
@@ -56,8 +57,17 @@ public class EnemyHealth : MonoBehaviour {
         if (curHealth <= 0)
         {
             Vector3 posX = transform.position;
-            Instantiate(bloodSplatter, posX, transform.rotation);
-            Instantiate(bloodSplatter, posX, transform.rotation);
+            if (!isExplosion)
+            {
+                Instantiate(bloodSplatter, posX, transform.rotation);
+                Instantiate(bloodSplatter, posX, transform.rotation);
+            }
+
+            if (isExplosion)
+            {
+                Instantiate(explosionPrefab, posX, transform.rotation);
+                Instantiate(explosionPrefab, posX, transform.rotation);
+            }
             timerHolder.SendMessage("SSKilled");
             Destroy(gameObject);
         }
@@ -70,7 +80,10 @@ public class EnemyHealth : MonoBehaviour {
         {
             Vector3 posX = transform.position;
             posX.y -= 0.75f;
+            if (!isExplosion)
+            {
                 Instantiate(bloodSplatter, col1.gameObject.transform.position, transform.rotation);
+            }
                 curHealth -= 10;
             
         }
@@ -83,9 +96,11 @@ public class EnemyHealth : MonoBehaviour {
         Vector3 posX = transform.position;
         if (col.gameObject.tag == "Weapon")
         {
-            
+            if (!isExplosion) { 
             posX.y -= 0.75f;
+
             Instantiate(bloodSplatter, col.gameObject.transform.position, transform.rotation);
+        }
             curHealth -= 10;
 
         }

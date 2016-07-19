@@ -9,12 +9,26 @@ public class ExpSmoke : MonoBehaviour {
     public Sprite greySprite;
     int index;
 
-    public bool thrownDown;
+    bool thrownDown;
     public int throwSpeedLow;
     public int throwSpeedHigh;
 
+    public bool isSpark;
+
+    float uporDown;
+
     // Use this for initialization
     void Start () {
+        uporDown = Random.RandomRange(0,2);
+
+        if (uporDown >= 1.1f)
+            thrownDown = false;
+
+        if (uporDown <= 1)
+            thrownDown = true;
+
+        StartCoroutine(Timer());
+
         index = Random.Range(0, 4);
         if(index ==1)
         gameObject.GetComponent<SpriteRenderer>().sprite = redSprite;
@@ -25,9 +39,13 @@ public class ExpSmoke : MonoBehaviour {
         if (index == 4)
             gameObject.GetComponent<SpriteRenderer>().sprite = greySprite;
 
+        if (!isSpark)
+        {
+            gameObject.GetComponent<Rigidbody>().useGravity = false;
+            }
 
-        gameObject.GetComponent<Rigidbody>().useGravity = false;
-        gameObject.GetComponent<Rigidbody>().velocity = new Vector3(0, 0, -8);
+        gameObject.GetComponent<Rigidbody>().velocity = new Vector3(0, 0, -15);
+
         //StartCoroutine(Timer());
 
         if (thrownDown)
@@ -47,4 +65,15 @@ public class ExpSmoke : MonoBehaviour {
 	void Update () {
 	
 	}
+
+
+    IEnumerator Timer()
+    {
+        //Just in case theres an issue and it doesnt collide with anything. 
+        yield return new WaitForSeconds(13);
+        Destroy(gameObject);
+
+    }
+
+
 }

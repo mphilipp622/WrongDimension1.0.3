@@ -10,6 +10,9 @@ public class BOMBscript : MonoBehaviour {
     public int throwSpeedLow;
     public int throwSpeedHigh;
 
+    public int timerLow = 1;
+    public int timerHigh = 2;
+
     // Use this for initialization
     void Start()
     {
@@ -45,7 +48,7 @@ public class BOMBscript : MonoBehaviour {
     IEnumerator Timer()
     {
 
-        yield return new WaitForSeconds(Random.Range(1, 2f));
+        yield return new WaitForSeconds(Random.Range(timerLow, timerHigh));
         Instantiate(explosion, transform.position, transform.rotation);
         Destroy(gameObject);
     }

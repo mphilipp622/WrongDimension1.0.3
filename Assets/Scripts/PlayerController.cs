@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using VideoGlitches;
 
+
 public class PlayerController : MonoBehaviour {
 
     [SerializeField]
@@ -45,6 +46,7 @@ public class PlayerController : MonoBehaviour {
 
 
     public GameObject bloodSplatter;
+    public GameObject playerbloodSplatter;
 
     public float maxhealth;
     float curHealth;
@@ -81,7 +83,9 @@ public class PlayerController : MonoBehaviour {
     GameObject[] highlighter;
 
     public bool lastLevel;
-    
+
+    bool hasDied;
+
 
     // Use this for initialization
     void Start () {
@@ -325,7 +329,10 @@ public class PlayerController : MonoBehaviour {
         if(curHealth >=100)
         {
 
-            Application.LoadLevel(Application.loadedLevel);
+            //Application.LoadLevel(Application.loadedLevel);
+            gameObject.GetComponent<SpriteRenderer>().enabled = false;
+            canControl = false;
+            StartCoroutine(DeathTimer());
         }
 
 
@@ -535,7 +542,26 @@ public class PlayerController : MonoBehaviour {
         laserShots += 1;
     }
 
+    IEnumerator DeathTimer()
+    {
+        
+        if (hasDied == false)
+        {
+            hasDied = true;
+            Instantiate(playerbloodSplatter, transform.position, transform.rotation);
+            Instantiate(playerbloodSplatter, transform.position, transform.rotation);
+            Instantiate(playerbloodSplatter, transform.position, transform.rotation);
+            Instantiate(playerbloodSplatter, transform.position, transform.rotation);
+            Debug.Log("Should Reload level");
+            yield return new WaitForSeconds(2);
 
+            Application.LoadLevel(Application.loadedLevel);
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+           
+        }
 
     }
+
+
+}
 

@@ -16,10 +16,12 @@ public class LockedLevel : MonoBehaviour
     Image thisImage;
     public bool canPlay;
 
+   
     void Start()
     {
         thisImage = GetComponent<Image>();
         thisImage.color = new Color(thisImage.color.r, thisImage.color.g, thisImage.color.b, alphaValue);
+       
     }
 
     void Update()
@@ -37,6 +39,7 @@ public class LockedLevel : MonoBehaviour
     {
         if (canPlay)
         {
+            
             Application.LoadLevel(levelNumber);
         }
 

@@ -35,8 +35,8 @@ public class NewPPDetect : MonoBehaviour {
 
     void OnTriggerEnter(Collider col)
     {
-        Debug.Log("First Triggered");
-        Debug.Log(col.gameObject.tag);
+        //Debug.Log("First Triggered");
+        //Debug.Log(col.gameObject.tag);
         if (col.gameObject.tag == "PDA" /* || col.gameObject.tag == "Weapon"*/)
         {
             if (canChange)
