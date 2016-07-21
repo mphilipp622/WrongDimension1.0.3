@@ -4,6 +4,7 @@ using System;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour {
 
@@ -16,6 +17,8 @@ public class GameManager : MonoBehaviour {
 	public KeyCode down {get;set;}
 	public KeyCode shoot {get; set;}
 	public KeyCode stab {get; set;}
+
+	public List<KeyCode> keycodes {get; set;}
 
 	public int levelUnlocked
 	{
@@ -46,6 +49,14 @@ public class GameManager : MonoBehaviour {
 		down = (KeyCode) System.Enum.Parse(typeof(KeyCode), PlayerPrefs.GetString("downKey", "S"));
 		stab = (KeyCode) System.Enum.Parse(typeof(KeyCode), PlayerPrefs.GetString("swordKey", "R"));
 		shoot = (KeyCode) System.Enum.Parse(typeof(KeyCode), PlayerPrefs.GetString("gunKey", "E"));
+
+		keycodes = new List<KeyCode>();
+
+		keycodes.Add(jump);
+		keycodes.Add(up);
+		keycodes.Add(down);
+		keycodes.Add(stab);
+		keycodes.Add(shoot);
 //
 //		jump = KeyCode.Space;
 //		up = KeyCode.W;
@@ -62,6 +73,18 @@ public class GameManager : MonoBehaviour {
 	void Update () 
 	{
 		
+	}
+
+	public void UpdateKeyList()
+	{
+		keycodes.Clear();
+
+		keycodes.Add(jump);
+		keycodes.Add(up);
+		keycodes.Add(down);
+		keycodes.Add(stab);
+		keycodes.Add(shoot);
+
 	}
 
 	public void Save()
