@@ -3,6 +3,8 @@ using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using VideoGlitches;
+using com.ootii.Input;
+using System.Collections.Generic;
 
 
 public class PlayerController : MonoBehaviour {
@@ -49,8 +51,7 @@ public class PlayerController : MonoBehaviour {
     public GameObject playerbloodSplatter;
 
     public float maxhealth;
-    float curHealth;
-    public Image healthBar;
+    public float curHealth;
     public GameObject healthEffectHolder;
    
 
@@ -86,6 +87,11 @@ public class PlayerController : MonoBehaviour {
 
     bool hasDied;
 
+	List<InputAlias> aliases;
+	bool forwardNotAButton, backNotAButton;
+	[SerializeField]
+	[Tooltip("How far analog stick must be moved to start movement")]
+	float analogMoveThreshold = 0.5f;
 
     // Use this for initialization
     void Start () {
@@ -94,7 +100,7 @@ public class PlayerController : MonoBehaviour {
         
         rigidBody = GetComponent<Rigidbody>();
         anim = GetComponent<Animator>();
-        curHealth = maxhealth;
+        curHealth = 0;
         audio1 = GetComponent<AudioSource>();
         sword.tag = "Untagged";
         weaponSource.clip = teleIn;
@@ -106,10 +112,43 @@ public class PlayerController : MonoBehaviour {
         mainCamera = GameObject.FindWithTag("MainCamera");
         highlighter = GameObject.FindGameObjectsWithTag ("Highlighter");
 
+		/*
+		 * The following is used to determine if forward or backward inputs are
+		 * assigned to analog or D-pad controls on the controller.
+		 * I can't figure out a better way to do this. It needs to be done
+		 * So our controller movement behavior works properly between keyboard
+		 * and controller
+		 */
+		if(InputManager.Aliases.TryGetValue("ForwardXbox", out aliases))
+		{
+			foreach(var item in aliases)
+			{
+				if(item.PrimaryID == 170 || item.PrimaryID == 171 || item.PrimaryID == 173 || item.PrimaryID == 174 || item.PrimaryID == 186 || item.PrimaryID == 187)
+					forwardNotAButton = true;
+				else
+					forwardNotAButton = false;
+			}
+		}
+
+		if(InputManager.Aliases.TryGetValue("BackXbox", out aliases))
+		{
+			foreach(var item in aliases)
+			{
+				if(item.PrimaryID == 170 || item.PrimaryID == 171 || item.PrimaryID == 173 || item.PrimaryID == 174 || item.PrimaryID == 186 || item.PrimaryID == 187)
+					backNotAButton = true;
+				else
+					backNotAButton = false;
+			}
+		}
+
+		Debug.Log(forwardNotAButton);
+		Debug.Log(backNotAButton);
     }
 	
 	// Update is called once per frame
 	void Update () {
+
+//		Debug.Log(aliases2[0].PrimaryID);
 
         if (canJump )
         {
@@ -163,26 +202,22 @@ public class PlayerController : MonoBehaviour {
                 Application.LoadLevel(1);
         }
 
-        if (!canJump)
-        {
-           // actualWalkSpeed = actualWalkSpeed / 2;
-
-        }
+        
 
         Vector3 v = rigidBody.velocity;
-        //rigidBody.velocity = new Vector2(rigidBody.velocity.x, 0);
+       
 
         v.y = walkSpeed;
-        //rigidBody.velocity = v;
-  
+
+//		Debug.Log(InputManager.Aliases.TryGetValue("Forward", out aliases));
+
         
         if (canControl)
         {
-			if (Input.GetKey(GameManager.GM.up))
+			if (InputManager.IsPressed("ForwardKeyboard") && !InputManager.UseGamepad)
             {
                 v.y = actualWalkSpeed * m_MaxSpeed;
                 rigidBody.velocity = new Vector3(v.x, v.y, v.z);
-                //rigidBody.rotation = Quaternion.Euler(0, 0, 0);
                 anim.SetBool("Walking", true);
                 facingDown = false;
                 walkingSource.clip = walkingSound;
@@ -190,18 +225,86 @@ public class PlayerController : MonoBehaviour {
                 if (!audio1.isPlaying && canJump)
                     GetComponent<AudioSource>().Play();
             }
+			else if (InputManager.IsPressed("BackKeyboard") && !InputManager.UseGamepad)
+			{
+				v.y = -actualWalkSpeed * m_MaxSpeed;
+				rigidBody.velocity = new Vector3(v.x, v.y, v.z);
+				facingDown = true;
 
-			if (Input.GetKey(GameManager.GM.down))
-            {
-                v.y = -actualWalkSpeed * m_MaxSpeed;
-                rigidBody.velocity = new Vector3(v.x, v.y, v.z);
-                facingDown = true;
-                
-                if (!audio1.isPlaying && canJump)
-                    GetComponent<AudioSource>().Play();
-            }
+				if (!audio1.isPlaying && canJump)
+					GetComponent<AudioSource>().Play();
+			}
+			else if(InputManager.IsPressed("ForwardXbox") && !forwardNotAButton && InputManager.UseGamepad)
+			{
+				Debug.Log("True");
+				v.y = actualWalkSpeed * m_MaxSpeed;
+				rigidBody.velocity = new Vector3(v.x, v.y, v.z);
+				anim.SetBool("Walking", true);
+				facingDown = false;
+				walkingSource.clip = walkingSound;
 
-			if (Input.GetKeyUp(GameManager.GM.up) || Input.GetKeyUp(GameManager.GM.down))
+				if (!audio1.isPlaying && canJump)
+					GetComponent<AudioSource>().Play();
+			}
+			else if (InputManager.IsPressed("BackXbox") && !backNotAButton && InputManager.UseGamepad)
+			{
+				v.y = -actualWalkSpeed * m_MaxSpeed;
+				rigidBody.velocity = new Vector3(v.x, v.y, v.z);
+				facingDown = true;
+
+				if (!audio1.isPlaying && canJump)
+					GetComponent<AudioSource>().Play();
+			}
+			else if((InputManager.IsPressed("ForwardXbox") || InputManager.IsPressed("BackXbox")) && (forwardNotAButton || backNotAButton) && InputManager.UseGamepad)
+			{
+				if(InputManager.LeftStickY > analogMoveThreshold || InputManager.RightStickY > analogMoveThreshold)
+				{
+					v.y = actualWalkSpeed * m_MaxSpeed;
+					rigidBody.velocity = new Vector3(v.x, v.y, v.z);
+					anim.SetBool("Walking", true);
+					facingDown = false;
+					walkingSource.clip = walkingSound;
+
+					if (!audio1.isPlaying && canJump)
+						GetComponent<AudioSource>().Play();
+				}
+				else if(InputManager.LeftStickY < -analogMoveThreshold || InputManager.RightStickY < -analogMoveThreshold)
+				{
+					v.y = -actualWalkSpeed * m_MaxSpeed;
+					rigidBody.velocity = new Vector3(v.x, v.y, v.z);
+					facingDown = true;
+
+					if (!audio1.isPlaying && canJump)
+						GetComponent<AudioSource>().Play();
+				}
+			}
+
+//			else if(InputManager.IsPressed("Back") && (InputManager.IsLeftStickActive || InputManager.IsRightStickActive))
+//			{
+//				if(InputManager.LeftStickY < 0 || InputManager.RightStickY < 0)
+//				{
+//					v.y = -actualWalkSpeed * m_MaxSpeed;
+//					rigidBody.velocity = new Vector3(v.x, v.y, v.z);
+//					facingDown = true;
+//
+//					if (!audio1.isPlaying && canJump)
+//						GetComponent<AudioSource>().Play();
+//				}
+//				else if(InputManager.LeftStickY > 0 || InputManager.RightStickY > 0)
+//				{
+//					v.y = actualWalkSpeed * m_MaxSpeed;
+//					rigidBody.velocity = new Vector3(v.x, v.y, v.z);
+//					anim.SetBool("Walking", true);
+//					facingDown = false;
+//					walkingSource.clip = walkingSound;
+//
+//					if (!audio1.isPlaying && canJump)
+//						GetComponent<AudioSource>().Play();
+//				}
+//			}
+
+			if (InputManager.IsJustReleased("ForwardKeyboard") || InputManager.IsJustReleased("BackKeyboard") || InputManager.IsJustReleased("ForwardXbox") ||
+				InputManager.IsJustReleased("BackXbox"))
             {
 
                 
@@ -241,7 +344,7 @@ public class PlayerController : MonoBehaviour {
                 }
             }
 
-			if (Input.GetKeyDown(GameManager.GM.shoot))
+			if ((InputManager.IsJustPressed("ShootKeyboard") && !InputManager.UseGamepad) || (InputManager.IsJustPressed("ShootXbox") && InputManager.UseGamepad))
             {
                 Vector3 posX = transform.position;
 
@@ -293,7 +396,7 @@ public class PlayerController : MonoBehaviour {
             }
 
 
-			if (Input.GetKeyDown(GameManager.GM.stab))
+			if ((InputManager.IsJustPressed("MeleeKeyboard") && !InputManager.UseGamepad) || (InputManager.IsJustPressed("MeleeXbox") && InputManager.UseGamepad))
             {
                 if(!facingDown)
                 anim.SetBool("Striking", true);
@@ -304,14 +407,14 @@ public class PlayerController : MonoBehaviour {
                 sword.tag = "Weapon";
             }
 
-			if (Input.GetKeyUp(GameManager.GM.stab))
+			if ((InputManager.IsJustReleased("MeleeKeyboard") && !InputManager.UseGamepad) || (InputManager.IsJustReleased("MeleeXbox") && InputManager.UseGamepad))
             {
                 sword.tag = "Untagged";
                 anim.SetBool("Striking", false);
                 anim.SetBool("StrikingDown", false);
             }
 
-			if (Input.GetKeyDown(GameManager.GM.jump))
+			if ((InputManager.IsJustPressed("JumpKeyboard") && !InputManager.UseGamepad) || (InputManager.IsJustPressed("JumpXbox") && InputManager.UseGamepad))
             {
                 if(canJump)
                 rigidBody.velocity = new Vector3(v.x, v.y, -jumpForce);
@@ -320,17 +423,19 @@ public class PlayerController : MonoBehaviour {
                 hitTakenSource.Play();
             }
 
-			if (Input.GetKeyUp(GameManager.GM.jump))
-            {
-
-            }
+//			if (Input.GetKeyUp(GameManager.GM.jump))
+//            {
+//
+//            }
         }
 
-        if(curHealth >=100)
+        if(curHealth >= maxhealth)
         {
-
-            //Application.LoadLevel(Application.loadedLevel);
             gameObject.GetComponent<SpriteRenderer>().enabled = false;
+            gameObject.GetComponent<Collider>().enabled = false;
+            gameObject.GetComponent<Rigidbody>().isKinematic = true;
+            GameObject playerSword = GameObject.FindWithTag("Weapon");
+            playerSword.GetComponent<SpriteRenderer>().enabled = false;
             canControl = false;
             StartCoroutine(DeathTimer());
         }
@@ -383,8 +488,6 @@ public class PlayerController : MonoBehaviour {
         {
            
             curHealth += 10;
-            float calcHealth = curHealth / maxhealth;
-            setHealth(calcHealth);
             Vector3 posX = transform.position;
             Instantiate(bloodSplatter, posX, transform.rotation);
             healthEffectHolder.GetComponent<VideoGlitchOldVHS>().amount += 0.10f;
@@ -395,9 +498,7 @@ public class PlayerController : MonoBehaviour {
         {
             hitTakenSource.clip = arrowHitSound;
             hitTakenSource.Play();
-            curHealth += 5;
-            float calcHealth = curHealth / maxhealth;
-            setHealth(calcHealth);
+            curHealth += 8;
             Destroy(col.gameObject);
             Vector3 posX = transform.position;
             Instantiate(bloodSplatter, posX, transform.rotation);
@@ -409,8 +510,6 @@ public class PlayerController : MonoBehaviour {
         if (col.gameObject.tag == "Exit")
         {
             walkingSource.Stop();
-           //int curLevel = PlayerPrefs.GetInt("HighestLevelUnlocked");
-           // curLevel += 1;
             anim.SetBool("Striking", false);
             anim.SetBool("StrikingDown", false);
             rigidBody.velocity = new Vector3(0, 0, 0);
@@ -451,8 +550,6 @@ public class PlayerController : MonoBehaviour {
         {
 
             curHealth += 10;
-            float calcHealth = curHealth / maxhealth;
-            setHealth(calcHealth);
             Vector3 posX = transform.position;
             Instantiate(bloodSplatter, posX, transform.rotation);
             healthEffectHolder.GetComponent<VideoGlitchOldVHS>().amount += 0.10f;
@@ -476,28 +573,18 @@ public class PlayerController : MonoBehaviour {
             hitTakenSource.Play();
 
         }
-
-        //if (col1.gameObject.tag == "ground" /*|| col1.gameObject.tag == "Geography"*/)
-        //{
-        
+            
             canJump = true;
-       // }
+       
 
         }
 
     void OnCollisionExit(Collision col2)
     {
-       // if (col2.gameObject.tag == "ground")
-       // {
             canJump = false;
-        //}
         }
 
-    void setHealth (float calcHealth)
-    {
-
-       // healthBar.fillAmount = calcHealth;
-    }
+    
     IEnumerator Timer()
     {
         

@@ -2,25 +2,25 @@
 using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.Audio;
+using com.ootii.Input;
 
 public class Mainmenu : MonoBehaviour {
-
-    
 
     // public GameObject mainMenuPanel;
     Animator MainMenuAnim;
 
+	Event keyEvent;
+
+    public GameObject MenuCanvas;
     public GameObject[] MainMenuSelect;
     public GameObject[] LevelSelects;
     public GameObject[] optionsSelects;
-	public GameObject[] keymapSelects;
     
     public float speed = 2.0f;
 
     private Vector3 MaintargetScale;
     private Vector3 LevtargetScale;
     private Vector3 options1Scale;
-	private Vector3 keymapScale;
     
     private Vector3 baseScale;
     private Vector3 LevbaseScale;
@@ -66,25 +66,17 @@ public class Mainmenu : MonoBehaviour {
     public int musicVolInt = 3;
     public Sprite[] musicVolSprites;
 
-	//Keymapping Variables
-	Transform keymapPanel;
-	Event keyEvent;
-	Text buttonText;
-	KeyCode newKey;
-	Text[] textBoxes;
-
-	bool waitingForKey, keymapOpen;
+	bool waitingForKey = false;
+	Animator panelAnim;
 
     // Use this for initialization
     void Start () {
+
+		panelAnim = MenuCanvas.GetComponent<Animator>();
+
         // MainMenuAnim = mainMenuPanel.GetComponent<Animator>();
         baseScale = transform.localScale;
         MaintargetScale = baseScale;
-
-		musicVolume = GameObject.FindWithTag("MusicHandler");
-		musicVolume.GetComponent<AudioSource>().volume = musicVolLevel;
-		musicVolLevel = musicVolume.GetComponent<MusicHanlder>().musicVol;
-		musicVolInt = musicVolume.GetComponent<MusicHanlder>().musicVolint;
         
         foreach (GameObject obj2 in LevelSelects)
         {
@@ -101,14 +93,6 @@ public class Mainmenu : MonoBehaviour {
 
         }
 
-		foreach (GameObject obj4 in keymapSelects)
-		{
-			// options1Scale.y = 0.5f;
-
-			obj4.transform.localScale = new Vector3 (1, 0, 1);
-
-		}
-
 
         if (resetLevels)
         {
@@ -118,7 +102,10 @@ public class Mainmenu : MonoBehaviour {
         }
 
 
-        
+        musicVolume = GameObject.FindWithTag("MusicHandler");
+        musicVolume.GetComponent<AudioSource>().volume = musicVolLevel;
+        musicVolLevel = musicVolume.GetComponent<MusicHanlder>().musicVol;
+        musicVolInt = musicVolume.GetComponent<MusicHanlder>().musicVolint;
 
         //////////////////////////////
         if (musicVolInt == 0)
@@ -159,32 +146,16 @@ public class Mainmenu : MonoBehaviour {
 
         }
         /////////////////////////////
-		/// Keymapping instantiation
-		keymapPanel = GameObject.Find("KeymappingPanel").transform;
-//		keymapPanel.gameObject.SetActive(false);
-		waitingForKey = false;
-		keymapOpen = false;
+		/// 
 
-		for(int i = 0; i < 5; i++)
-		{
-			if(keymapPanel.GetChild(i).name == "DownKey")
-				keymapPanel.GetChild(i).GetComponentInChildren<Text>().text = GameManager.GM.down.ToString();
-			else if(keymapPanel.GetChild(i).name == "UpKey")
-				keymapPanel.GetChild(i).GetComponentInChildren<Text>().text = GameManager.GM.up.ToString();
-			else if(keymapPanel.GetChild(i).name == "JumpKey")
-				keymapPanel.GetChild(i).GetComponentInChildren<Text>().text = GameManager.GM.jump.ToString();
-			else if(keymapPanel.GetChild(i).name == "SwordKey")
-				keymapPanel.GetChild(i).GetComponentInChildren<Text>().text = GameManager.GM.stab.ToString();
-			else if(keymapPanel.GetChild(i).name == "GunKey")
-				keymapPanel.GetChild(i).GetComponentInChildren<Text>().text = GameManager.GM.shoot.ToString();
-		}
     }
 	
 	// Update is called once per frame
 	void Update () {
 
-        musicVolume.GetComponent<AudioSource>().volume = 1;
-
+//		Debug.Log(InputManager.GetValue("Forward"));
+//		Debug.Log(InputManager.IsPressed(179));
+       // musicVolume.GetComponent<AudioSource>().volume = 1;
 
         levelsUnlocked = PlayerPrefs.GetInt("HighestLevelUnlocked");
 
@@ -205,14 +176,6 @@ public class Mainmenu : MonoBehaviour {
 
         }
 
-		foreach (GameObject obj4 in keymapSelects)
-		{
-			keymapScale.x = 1f;
-
-			obj4.transform.localScale = Vector3.Lerp(obj4.transform.localScale, keymapScale, speed * Time.deltaTime);
-
-		}
-
 
         //if (transform.localScale != LevtargetScale)
         //{
@@ -229,156 +192,22 @@ public class Mainmenu : MonoBehaviour {
 
     }
 
-	/// Keymapping Functions
-
-	void OnGUI()
-	{
-		//		if(waitingForKey)
-		keyEvent = Event.current;
-
-		if(keyEvent.isKey && waitingForKey)
-		{
-			newKey = keyEvent.keyCode;
-			waitingForKey = false;
-		}
-	}
-
-	public void OpenKeymapPanel()
-	{
-		gameObject.GetComponent<AudioSource>().Play();
-
-		if(!keymapOpen)
-		{
-//			keymapPanel.gameObject.SetActive(true);
-			options1Scale.y = 0;
-			alreadyoptions = false;
-			StartCoroutine(KeymapTimer());
-		}
-		else
-		{
-//			keymapPanel.gameObject.SetActive(false);
-			StartCoroutine(KeymapTimer2());
-		}
-	}
-
-	public void StartAssignment(string keyName)
-	{
-		if(!waitingForKey)
-			StartCoroutine(AssignKey(keyName));
-	}
-
-	public void SendText(Text text)
-	{
-		buttonText = text;
-	}
-
-	IEnumerator WaitForKey()
-	{
-		while(!keyEvent.isKey)
-		{
-			yield return null;
-		}
-		//newKey = keyEvent.keyCode;
-	}
-
-	public IEnumerator AssignKey(string keyName)
-	{
-		waitingForKey = true;
-
-		yield return WaitForKey();
-
-		switch(keyName)
-		{
-		case "up":
-			for(int i = 0; i < GameManager.GM.keycodes.Count; i++)
-			{
-				if(GameManager.GM.keycodes[i] == newKey)
-				{
-					buttonText.text = "Key In Use";
-					yield return new WaitForSeconds(1f);
-					buttonText.text = GameManager.GM.up.ToString();
-					yield break;
-				}
-			}
-			GameManager.GM.up = newKey;
-			GameManager.GM.UpdateKeyList();
-			buttonText.text = GameManager.GM.up.ToString();
-			PlayerPrefs.SetString("upKey", GameManager.GM.up.ToString());
-			break;
-		case "down":
-			for(int i = 0; i < GameManager.GM.keycodes.Count; i++)
-			{
-				if(GameManager.GM.keycodes[i] == newKey)
-				{
-					buttonText.text = "Key In Use";
-					yield return new WaitForSeconds(1f);
-					buttonText.text = GameManager.GM.down.ToString();
-					yield break;
-				}
-			}
-			GameManager.GM.down = newKey;
-			GameManager.GM.UpdateKeyList();
-			buttonText.text = GameManager.GM.down.ToString();
-			PlayerPrefs.SetString("downKey", GameManager.GM.down.ToString());
-			break;
-		case "jump":
-			for(int i = 0; i < GameManager.GM.keycodes.Count; i++)
-			{
-				if(GameManager.GM.keycodes[i] == newKey)
-				{
-					buttonText.text = "Key In Use";
-					yield return new WaitForSeconds(1f);
-					buttonText.text = GameManager.GM.jump.ToString();
-					yield break;
-				}
-			}
-			GameManager.GM.jump = newKey;
-			GameManager.GM.UpdateKeyList();
-			buttonText.text = GameManager.GM.jump.ToString();
-			PlayerPrefs.SetString("jumpKey", GameManager.GM.jump.ToString());
-			break;
-		case "sword":
-			for(int i = 0; i < GameManager.GM.keycodes.Count; i++)
-			{
-				if(GameManager.GM.keycodes[i] == newKey)
-				{
-					buttonText.text = "Key In Use";
-					yield return new WaitForSeconds(1f);
-					buttonText.text = GameManager.GM.stab.ToString();
-					yield break;
-				}
-			}
-			GameManager.GM.stab = newKey;
-			GameManager.GM.UpdateKeyList();
-			buttonText.text = GameManager.GM.stab.ToString();
-			PlayerPrefs.SetString("swordKey", GameManager.GM.stab.ToString());
-			break;
-		case "gun":
-			for(int i = 0; i < GameManager.GM.keycodes.Count; i++)
-			{
-				if(GameManager.GM.keycodes[i] == newKey)
-				{
-					buttonText.text = "Key In Use";
-					yield return new WaitForSeconds(1f);
-					buttonText.text = GameManager.GM.shoot.ToString();
-					yield break;
-				}
-			}
-			GameManager.GM.shoot = newKey;
-			GameManager.GM.UpdateKeyList();
-			buttonText.text = GameManager.GM.shoot.ToString();
-			PlayerPrefs.SetString("gunKey", GameManager.GM.shoot.ToString());
-			break;
-			//		default:
-			//			yield return null;
-			//			break;
-		}
-
-		yield return null;
-
-	}
-
-	///////////////////////////////
+//	void OnGUI()
+//	{
+//		/*keyEvent dictates what key our user presses
+//		 * by using Event.current to detect the current
+//		 * event
+//		 */
+//		keyEvent = Event.current;
+//
+//		//Executes if a button gets pressed and
+//		//the user presses a key
+//		if(keyEvent.isKey && waitingForKey)
+//		{
+//			newKey = keyEvent.keyCode; //Assigns newKey to the key user presses
+//			waitingForKey = false;
+//		}
+//	}
 
     public void GameStart()
     {
@@ -396,13 +225,8 @@ public class Mainmenu : MonoBehaviour {
         gameObject.GetComponent<AudioSource>().Play();
         if (alreadyoptions == false)
         {
-			if(keymapOpen)
-				StartCoroutine(KeymapTimer2());
-			else
-			{
-	            MaintargetScale.x = 0;
-	            StartCoroutine(OptionsTimer());
-			}
+            MaintargetScale.x = 0;
+            StartCoroutine(OptionsTimer());
             
         } else if  (alreadyoptions == true)
         {
@@ -505,6 +329,94 @@ public class Mainmenu : MonoBehaviour {
         }
     }
 
+    public void StartKeyMapping()
+    {
+        panelAnim.SetBool("MappingUp", true);
+		StartCoroutine(KeyMapping());
+    }
+
+	IEnumerator KeyMapping()
+	{
+		GameObject eventSystem = GameObject.Find("EventSystem");
+		eventSystem.SetActive(false);
+
+		waitingForKey = true;
+
+		yield return WaitForKey("Forward");
+		panelAnim.SetBool("MappingUp", false);
+		panelAnim.SetBool("MappingDown", true);
+		yield return new WaitForSeconds(panelAnim.GetCurrentAnimatorStateInfo(0).length);
+
+		waitingForKey = true;
+
+		yield return WaitForKey("Back");
+		panelAnim.SetBool("MappingDown", false);
+		panelAnim.SetBool("MappingJump", true);
+		yield return new WaitForSeconds(panelAnim.GetCurrentAnimatorStateInfo(0).length);
+
+		waitingForKey = true;
+
+		yield return WaitForKey("Jump");
+		panelAnim.SetBool("MappingJump", false);
+		panelAnim.SetBool("MappingMelee", true);
+		yield return new WaitForSeconds(panelAnim.GetCurrentAnimatorStateInfo(0).length);
+
+		waitingForKey = true;
+
+		yield return WaitForKey("Melee");
+		panelAnim.SetBool("MappingMelee", false);
+		panelAnim.SetBool("MappingLaser", true);
+		yield return new WaitForSeconds(panelAnim.GetCurrentAnimatorStateInfo(0).length);
+
+		waitingForKey = true;
+
+		yield return WaitForKey("Shoot");
+		panelAnim.SetBool("MappingLaser", false);
+		yield return new WaitForSeconds(panelAnim.GetCurrentAnimatorStateInfo(0).length);
+		eventSystem.SetActive(true);
+	}
+
+	IEnumerator WaitForKey(string inputName)
+	{
+		while(waitingForKey)
+		{
+			for(int i = EnumInput.GAMEPAD_MIN; i <= EnumInput.GAMEPAD_MAX; i++)
+			{
+				if(InputManager.IsJustPressed(i))
+				{
+					Debug.Log("Testing Controller");
+					InputManager.RemoveAlias(inputName);
+					InputManager.AddAlias(inputName + "Xbox", i);
+					PlayerPrefs.SetInt(inputName + "Xbox", i);
+					yield return null;
+					waitingForKey = false;
+				}
+			}
+			for(int i = EnumInput.KEYBOARD_MIN; i <= EnumInput.KEYBOARD_MAX; i++)
+			{
+				if(InputManager.IsJustPressed(i))
+				{
+					Debug.Log("Testing Keyboard");
+					InputManager.RemoveAlias(inputName);
+					InputManager.AddAlias(inputName + "Keyboard", i);
+					PlayerPrefs.SetInt(inputName + "Keyboard", i);
+					yield return null;
+					waitingForKey = false;
+				}
+			}
+			yield return null;
+		}
+	}
+
+	public void UseGamepad()
+	{
+		InputManager.UseGamepad = true;
+	}
+
+	public void UseKeyboard()
+	{
+		InputManager.UseGamepad = false;
+	}
 
     IEnumerator Timer()
     {
@@ -521,7 +433,7 @@ public class Mainmenu : MonoBehaviour {
         alreadyoptions = true;
         yield return new WaitForSeconds(0.75f);
 
-       options1Scale.y = 1f;
+       options1Scale.y = 1.5f;
         Debug.Log("Options Select");
     }
 
@@ -537,23 +449,4 @@ public class Mainmenu : MonoBehaviour {
         
 
     }
-
-	IEnumerator KeymapTimer()
-	{
-		keymapOpen = true;
-		yield return new WaitForSeconds(1f);
-		keymapScale.y = 1f;
-
-	}
-		
-	IEnumerator KeymapTimer2()
-	{
-		speed = 12;
-		keymapOpen = false;
-		keymapScale.y = 0f;
-		yield return new WaitForSeconds(1f);
-		speed = 8;
-		options1Scale.y = 1;
-		alreadyoptions = true;
-	}
 }
